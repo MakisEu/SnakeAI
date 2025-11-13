@@ -6,11 +6,12 @@ from game import SnakeAI,NSWE
 from model import LinearQNet,QTrainer
 import matplotlib.pyplot as plt
 from IPython import display
+import itertools
 
 
 
 Block=20
-MAX_MEM=100000
+MAX_MEM=10000000
 
 class Agent:
     def __init__(self,gamma=0.9,starting_epislon_percentage=30,hidden_layers=256,lr=0.001,batch_size=1000, sampler="argmax", early_stopping_threshold=700, add_obsticles_to_state=False):
@@ -110,12 +111,22 @@ class Agent:
         self.memory.append((state,action,reward,next_state,gg))
 
     def trainLongMem(self):
-        if (len(self.memory)>self.batch_size):
-            sample=random.sample(self.memory,self.batch_size)
-        else:
-            sample=self.memory
-        states,actions,rewards,next_states,ggs= zip(*sample)
-        self.trainer.train_step(states,actions,rewards,next_states,ggs)
+        
+        last_batch=0
+        while (last_batch<len(self.memory)):
+            next_batch=min(last_batch+self.batch_size,len(self.memory))
+            #sample=self.memory[last_batch:next_batch]
+            sample=list(itertools.islice(self.memory, last_batch, next_batch))
+            last_batch=next_batch
+            states,actions,rewards,next_states,ggs= zip(*sample)
+            self.trainer.train_step(states,actions,rewards,next_states,ggs)
+            
+        #if (len(self.memory)>self.batch_size):
+        #    sample=random.sample(self.memory,self.batch_size)
+        #else:
+        #    sample=self.memory
+        #states,actions,rewards,next_states,ggs= zip(*sample)
+        #self.trainer.train_step(states,actions,rewards,next_states,ggs)
 
     def trainShortMem(self,state,action,reward,next_state,gg):
         self.trainer.train_step(state,action,reward,next_state,gg)
@@ -216,28 +227,28 @@ if __name__=="__main__":
 
     highest_record=0
 
-    for gamma in gammas:
-        for starting_epislon_percentage in starting_epislon_percentages:
-            for hidden_layer in hidden_layers:
-                for lr in lrs:
-                    for batch_size in batch_sizes:
-                        for sampler in samplers:
-                            for add_obsticle in add_obsticles:
-                                os.chdir("results")
-                                start_time=time.time()
-                                agent=Agent(gamma=gamma,starting_epislon_percentage=starting_epislon_percentage,hidden_layers=hidden_layer,lr=lr,batch_size=batch_size, sampler=sampler, add_obsticles_to_state=add_obsticle)
-                                agent_name=agent.hyperparams_to_string()
-                                path="results/"+agent_name
-                                print(path)
-                                os.mkdir(path)
-                                os.chdir(path)
-                                with open(agent_name+".log", "w") as f:
-                                    record=agent.train(file=f)
-                                    end_time=time.time()
-                                    print(f"Time taken for {agent.n_games} with High Score of {record}: {end_time-start_time}",file=f)
-                                if (record>highest_record):
-                                    highest_record=record
-                                    highest_record_holder=agent_name
-    print(f"High Score: {highest_record} from {highest_record_holder}")
+    #for gamma in gammas:
+    #    for starting_epislon_percentage in starting_epislon_percentages:
+    #        for hidden_layer in hidden_layers:
+    #            for lr in lrs:
+    #                for batch_size in batch_sizes:
+    #                    for sampler in samplers:
+    #                        for add_obsticle in add_obsticles:
+    #                            os.chdir("/home/makis/Documents/Github/SnakeAI/results")
+    #                            start_time=time.time()
+    #                            agent=Agent(gamma=gamma,starting_epislon_percentage=starting_epislon_percentage,hidden_layers=hidden_layer,lr=lr,batch_size=batch_size, sampler=sampler, add_obsticles_to_state=add_obsticle)
+    #                            agent_name=agent.hyperparams_to_string()
+    #                            path="/home/makis/Documents/Github/SnakeAI/results/"+agent_name
+    #                            print(path)
+    #                            os.mkdir(path)
+    #                            os.chdir(path)
+    #                            with open(agent_name+".log", "w") as f:
+    #                                record=agent.train(file=f)
+    #                                end_time=time.time()
+    #                                print(f"Time taken for {agent.n_games} with High Score of {record}: {end_time-start_time}",file=f)
+    #                            if (record>highest_record):
+    #                                highest_record=record
+    #                                highest_record_holder=agent_name
+    #print(f"High Score: {highest_record} from {highest_record_holder}")
 
-    #Agent().train()
+    Agent(gamma=0.9, starting_epislon_percentage=10, hidden_layers=128, batch_size=2000, lr=0.001, add_obsticles_to_state=False).train()

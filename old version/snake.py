@@ -6,7 +6,7 @@ import pdb
 
 pygame.init()
 
-my_font = pygame.font.Font('arial.ttf', 25)
+my_font = pygame.font.Font('/home/makis/Documents/Programming/ML/Deep_Learning/SnakeGame/arial.ttf', 25)
 Block=30#pixels
 Speed= 10
 
@@ -121,5 +121,5 @@ if __name__=="__main__":
             #pdb.set_trace()
         if gg:
             break
-    print ("Score:",score)
+    print ("Lol you suck bro #ripbozo #packwatch. Score:",score)
     pygame.quit()

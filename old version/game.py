@@ -6,9 +6,9 @@ import pdb
 
 pygame.init()
 
-my_font = pygame.font.Font('arial.ttf', 25)
+my_font = pygame.font.Font('/home/makis/Documents/Github/SnakeAI/arial.ttf', 25)
 Block=20#pixels
-Speed= 50
+Speed= 10
 
 black = pygame.Color(0, 0, 0)
 white = pygame.Color(255, 255, 255)
